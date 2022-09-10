@@ -34,13 +34,7 @@ public class TicketController {
 
         if (optionalTicket.isEmpty()) {
 
-            Ticket newTicket = new Ticket();
-
-            newTicket.setGameId(gameId);
-            newTicket.setCustomerId(1);
-            newTicket.setBlock(block);
-            newTicket.setSeatRow(seatRow);
-            newTicket.setSeat(seat);
+            Ticket newTicket = new Ticket(gameId, 1, block, seatRow, seat);
 
             Ticket boughtTicket = ticketRepositories.save(newTicket);
 
