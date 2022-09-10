@@ -4,14 +4,14 @@ import de.berufskollegaachen.soccerclubbackend.model.Ticket;
 import de.berufskollegaachen.soccerclubbackend.repository.TicketRepository;
 import de.berufskollegaachen.soccerclubbackend.service.QrCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -24,19 +24,37 @@ public class TicketController {
     @Autowired
     private QrCodeService qrCodeService;
 
-    @GetMapping("/buy/{gameId}")
-    public ResponseEntity<byte[]> buyTicket(@PathVariable(value = "gameId") Integer gameId) {
+    @PostMapping("/buy/{gameId}")
+    public ResponseEntity<byte[]> buyTicket(@PathVariable(value = "gameId") Integer gameId,
+                                            @RequestParam(required = false, name = "block") String block,
+                                            @RequestParam(required = false, name = "seatRow") Integer seatRow,
+                                            @RequestParam(required = false, name = "seat") Integer seat) {
 
+        Optional<Ticket> optionalTicket = ticketRepositories.findByGameIdAndBlockAndSeatRowAndSeat(gameId, block, seatRow, seat);
 
-        Optional<Ticket> optionalTicket = ticketRepositories.findById(gameId);
+        if (optionalTicket.isEmpty()) {
 
-        String contentToGenerateQrCode = "http://192.168.2.206:8080/ticket/";
-        byte[] qrCode = qrCodeService.generateQrCode(contentToGenerateQrCode, 300, 300);
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrCode);
+            Ticket newTicket = new Ticket();
+
+            newTicket.setGameId(gameId);
+            newTicket.setCustomerId(1);
+            newTicket.setBlock(block);
+            newTicket.setSeatRow(seatRow);
+            newTicket.setSeat(seat);
+
+            Ticket boughtTicket = ticketRepositories.save(newTicket);
+
+            String contentToGenerateQrCode = "http://192.168.2.206:8080/ticket/" + boughtTicket.getId();
+            byte[] qrCode = qrCodeService.generateQrCode(contentToGenerateQrCode, 300, 300);
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrCode);
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "No available ticket found to the requested game");
     }
 
-    @GetMapping("/")
-    public String checkQrTicket() {
-        return "Das Ticket ist Gültig";
+    @GetMapping("/{ticketId}")
+    public Ticket checkQrTicket(@PathVariable(value = "ticketId") Integer ticketId) {
+        return ticketRepositories.findById(ticketId).orElseThrow(NoSuchElementException::new);
     }
 }

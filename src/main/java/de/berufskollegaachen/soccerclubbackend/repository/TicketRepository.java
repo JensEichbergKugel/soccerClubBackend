@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, Integer>{
 
-    List<Ticket> findAllByGameId(Integer gameId);
+    Optional<Ticket> findByGameIdAndBlockAndSeatRowAndSeat(Integer gameId, String block, Integer seatRow, Integer seat);
 }

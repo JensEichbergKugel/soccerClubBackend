@@ -1,13 +1,20 @@
 package de.berufskollegaachen.soccerclubbackend.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "tickets")
+@Setter
+@Getter
 public class Ticket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id", nullable = false, unique = true)
     Integer id;
 
     @Column
