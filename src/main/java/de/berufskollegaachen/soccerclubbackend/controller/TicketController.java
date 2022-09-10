@@ -33,9 +33,7 @@ public class TicketController {
         Optional<Ticket> optionalTicket = ticketRepositories.findByGameIdAndBlockAndSeatRowAndSeat(gameId, block, seatRow, seat);
 
         if (optionalTicket.isEmpty()) {
-
             Ticket newTicket = new Ticket(gameId, 1, block, seatRow, seat);
-
             Ticket boughtTicket = ticketRepositories.save(newTicket);
 
             String contentToGenerateQrCode = "http://192.168.2.206:8080/ticket/" + boughtTicket.getId();
