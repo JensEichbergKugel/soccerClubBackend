@@ -20,8 +20,10 @@ public class QrCodeServiceImpl implements QrCodeService {
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeContent, BarcodeFormat.QR_CODE, width, height);
+
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", byteArrayOutputStream);
+
             return byteArrayOutputStream.toByteArray();
         } catch (WriterException | IOException e) {
             log.error(e.getMessage(), e);

@@ -41,7 +41,7 @@ public class TicketController {
         }
 
         throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, "No available ticket found to the requested game");
+                HttpStatus.BAD_REQUEST, "No available ticket found for the requested parameter");
     }
 
     @GetMapping("/{ticketId}")
